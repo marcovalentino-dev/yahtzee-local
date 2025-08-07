@@ -22,20 +22,28 @@ let gameId = "";
 let playerName = "";
 
 function createGame() {
+  alert("Creo partita..."); // DEBUG
   gameId = "partita-" + Math.random().toString(36).substr(2, 6);
+
   db.ref("games/" + gameId).set({
     createdAt: Date.now(),
     players: {},
     scores: {}
+  }).then(() => {
+    console.log("Partita creata:", gameId);
+    document.getElementById("qr").classList.remove("hidden");
+    new QRCode(document.getElementById("qr"), {
+      text: `${window.location.href}?game=${gameId}`,
+      width: 180,
+      height: 180
+    });
+    showNameSection();
+  }).catch(err => {
+    console.error("Errore Firebase:", err);
+    alert("Errore nel creare la partita");
   });
-  document.getElementById("qr").classList.remove("hidden");
-  new QRCode(document.getElementById("qr"), {
-    text: `${window.location.href}?game=${gameId}`,
-    width: 180,
-    height: 180
-  });
-  showNameSection();
 }
+
 
 function joinGame() {
   const input = document.getElementById("gameIdInput").value.trim();
