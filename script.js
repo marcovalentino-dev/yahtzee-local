@@ -84,4 +84,52 @@ function renderTable(scores) {
   const table = document.getElementById("scoreboard");
   table.innerHTML = "";
 
-  /
+  // Header
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<th>Categoria</th>`;
+  const players = Object.keys(scores);
+  players.forEach(player => {
+    tr.innerHTML += `<th>${player}</th>`;
+  });
+  table.appendChild(tr);
+
+  // Categorie
+  CATEGORIES.forEach(cat => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${cat}</td>`;
+
+    players.forEach(player => {
+      const td = document.createElement("td");
+      const input = document.createElement("input");
+      input.type = "number";
+      input.value = scores[player][cat] || "";
+      input.disabled = player !== playerName;
+      input.onchange = () => {
+        db.ref(`games/${gameId}/scores/${player}/${cat}`).set(parseInt(input.value) || 0);
+      };
+      td.appendChild(input);
+      row.appendChild(td);
+    });
+
+    table.appendChild(row);
+  });
+
+  // Totale
+  const totalRow = document.createElement("tr");
+  totalRow.innerHTML = `<th>Totale</th>`;
+  players.forEach(player => {
+    const total = Object.values(scores[player]).reduce((sum, val) => sum + (parseInt(val) || 0), 0);
+    totalRow.innerHTML += `<td><strong>${total}</strong></td>`;
+  });
+  table.appendChild(totalRow);
+}
+
+// Auto-join via ?game=xyz
+window.onload = () => {
+  const url = new URL(window.location.href);
+  const paramGame = url.searchParams.get("game");
+  if (paramGame) {
+    document.getElementById("gameIdInput").value = paramGame;
+    joinGame();
+  }
+};
