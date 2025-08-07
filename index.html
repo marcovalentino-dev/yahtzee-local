@@ -8,29 +8,29 @@
 </head>
 <body>
   <div class="container">
-    <h1>🎲 Yahtzee Locale</h1>
-    <div id="setup">
-      <div id="createOrJoin">
-        <button onclick="createGame()">Crea nuova partita</button>
-        <input type="text" id="gameIdInput" placeholder="Codice partita">
-        <button onclick="joinGame()">Unisciti a partita</button>
-      </div>
+    <h1>🎲 Yahtzee Multiplayer</h1>
 
-      <div id="nameForm" class="hidden">
-        <input type="text" id="playerName" placeholder="Il tuo nome">
-        <button onclick="submitName()">Entra</button>
-      </div>
+    <div id="setup">
+      <button onclick="createGame()">Crea nuova partita</button>
+      <input type="text" id="gameIdInput" placeholder="Codice partita">
+      <button onclick="joinGame()">Unisciti a partita</button>
 
       <div id="qr" class="hidden"></div>
+
+      <div id="nameSection" class="hidden">
+        <input type="text" id="playerName" placeholder="Il tuo nome">
+        <button onclick="enterGame()">Entra</button>
+      </div>
     </div>
 
     <div id="game" class="hidden">
       <h2 id="gameCodeLabel"></h2>
       <table id="scoreboard"></table>
-      <button onclick="saveGame()">💾 Salva Partita</button>
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script src="qr.min.js"></script>
   <script src="script.js"></script>
 </body>
