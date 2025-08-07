@@ -78,17 +78,20 @@ function enterGame() {
   playerName = document.getElementById("playerName").value.trim();
   if (!playerName) return alert("Inserisci il tuo nome");
 
-  // Aggiunge il giocatore al database
   const playerPath = `games/${gameId}/players/${playerName}`;
-  db.ref(playerPath).set(true);
-
-  // Aggiunge lo score vuoto
   const scorePath = `games/${gameId}/scores/${playerName}`;
   let scoreObj = {};
   CATEGORIES.forEach(cat => scoreObj[cat] = "");
-  db.ref(scorePath).set(scoreObj);
 
-  startGame();
+  Promise.all([
+    db.ref(playerPath).set(true),
+    db.ref(scorePath).set(scoreObj)
+  ]).then(() => {
+    startGame();
+  }).catch(err => {
+    alert("Errore nel connettersi alla partita");
+    console.error(err);
+  });
 }
 
 function startGame() {
