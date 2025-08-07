@@ -1,0 +1,57 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f8;
+  padding: 20px;
+  text-align: center;
+  color: #333;
+}
+
+h1 {
+  font-size: 2em;
+  color: #444;
+}
+
+input {
+  padding: 10px;
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #0077cc;
+  color: white;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+.hidden {
+  display: none;
+}
+
+#players {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.player-card {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  width: 180px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#qr-container {
+  margin-top: 20px;
+}
