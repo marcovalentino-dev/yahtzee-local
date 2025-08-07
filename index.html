@@ -10,18 +10,17 @@
   <div class="container">
     <h1>🎲 Yahtzee Multiplayer</h1>
 
-    <div id="setup">
-      <button onclick="createGame()">Crea nuova partita</button>
-      <input type="text" id="gameIdInput" placeholder="Codice partita">
-      <button onclick="joinGame()">Unisciti a partita</button>
-
-      <div id="qr" class="hidden"></div>
-
-      <div id="nameSection" class="hidden">
-        <input type="text" id="playerName" placeholder="Il tuo nome">
-        <button onclick="enterGame()">Entra</button>
-      </div>
-    </div>
+  <div id="setup">
+    <button onclick="createGame()">Crea nuova partita</button>
+    <input type="text" id="gameIdInput" placeholder="Codice partita">
+    <button onclick="joinGame()">Unisciti a partita</button>
+    <div id="qr" class="hidden"></div>
+  </div>
+  
+  <div id="nameSection" class="hidden">
+    <input type="text" id="playerName" placeholder="Il tuo nome">
+    <button onclick="enterGame()">Entra</button>
+  </div>
 
     <div id="game" class="hidden">
       <h2 id="gameCodeLabel"></h2>
