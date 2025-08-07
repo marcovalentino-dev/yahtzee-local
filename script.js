@@ -2,11 +2,13 @@
 const firebaseConfig = {
   apiKey: "AIzaSyDmJ9qIiJj6Nccpk9XGAHlqYPW40hMr7uA",
   authDomain: "yahtzee-local.firebaseapp.com",
+  databaseURL: "https://yahtzee-local-default-rtdb.firebaseio.com",  // ✅ Questa è la parte mancante!
   projectId: "yahtzee-local",
   storageBucket: "yahtzee-local.firebasestorage.app",
   messagingSenderId: "97135402041",
   appId: "1:97135402041:web:b517273548b86a580101e8"
 };
+
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
