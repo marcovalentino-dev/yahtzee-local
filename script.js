@@ -1,122 +1,87 @@
+// Inizializzazione Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDmJ9qIiJj6Nccpk9XGAHlqYPW40hMr7uA",
+  authDomain: "yahtzee-local.firebaseapp.com",
+  projectId: "yahtzee-local",
+  storageBucket: "yahtzee-local.firebasestorage.app",
+  messagingSenderId: "97135402041",
+  appId: "1:97135402041:web:b517273548b86a580101e8"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 const CATEGORIES = [
   "Aces", "Due", "Tre", "Quattro", "Cinque", "Sei",
   "Tris", "Poker", "Full House", "Scala Bassa", "Scala Alta", "Yahtzee", "Chance"
 ];
 
-let gameId = '';
-let playerName = '';
-let gameData = {}; // saved in localStorage per gameId
+let gameId = "";
+let playerName = "";
 
 function createGame() {
-  gameId = 'partita-' + Math.random().toString(36).substr(2, 6);
-  localStorage.setItem('yahtzee-' + gameId, JSON.stringify({ players: {}, categories: CATEGORIES }));
-  showQR();
-  document.getElementById('createOrJoin').classList.add('hidden');
-  document.getElementById('nameForm').classList.remove('hidden');
-}
-
-function joinGame() {
-  const input = document.getElementById('gameIdInput').value.trim();
-  if (!input) return alert("Inserisci un codice valido");
-  gameId = input;
-  const stored = localStorage.getItem('yahtzee-' + gameId);
-  if (!stored) return alert("Partita non trovata");
-  document.getElementById('createOrJoin').classList.add('hidden');
-  document.getElementById('nameForm').classList.remove('hidden');
-}
-
-function submitName() {
-  playerName = document.getElementById('playerName').value.trim();
-  if (!playerName) return alert("Inserisci il tuo nome");
-  const data = JSON.parse(localStorage.getItem('yahtzee-' + gameId));
-  if (!data.players[playerName]) {
-    data.players[playerName] = {};
-    CATEGORIES.forEach(cat => data.players[playerName][cat] = '');
-    localStorage.setItem('yahtzee-' + gameId, JSON.stringify(data));
-  }
-  gameData = data;
-  startGame();
-}
-
-function showQR() {
-  const qrDiv = document.getElementById('qr');
-  qrDiv.classList.remove('hidden');
-  qrDiv.innerHTML = '<h3>Invita i tuoi amici</h3>';
-  new QRCode(qrDiv, {
-    text: window.location.origin + window.location.pathname + '?game=' + gameId,
+  gameId = "partita-" + Math.random().toString(36).substr(2, 6);
+  db.ref("games/" + gameId).set({
+    createdAt: Date.now(),
+    players: {},
+    scores: {}
+  });
+  document.getElementById("qr").classList.remove("hidden");
+  new QRCode(document.getElementById("qr"), {
+    text: `${window.location.href}?game=${gameId}`,
     width: 180,
     height: 180
   });
+  showNameSection();
+}
+
+function joinGame() {
+  const input = document.getElementById("gameIdInput").value.trim();
+  if (!input) return alert("Inserisci un codice valido");
+  db.ref("games/" + input).once("value", snapshot => {
+    if (snapshot.exists()) {
+      gameId = input;
+      showNameSection();
+    } else {
+      alert("Partita non trovata");
+    }
+  });
+}
+
+function showNameSection() {
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("nameSection").classList.remove("hidden");
+}
+
+function enterGame() {
+  playerName = document.getElementById("playerName").value.trim();
+  if (!playerName) return alert("Inserisci il tuo nome");
+
+  // Aggiunge il giocatore al database
+  const playerPath = `games/${gameId}/players/${playerName}`;
+  db.ref(playerPath).set(true);
+
+  // Aggiunge lo score vuoto
+  const scorePath = `games/${gameId}/scores/${playerName}`;
+  let scoreObj = {};
+  CATEGORIES.forEach(cat => scoreObj[cat] = "");
+  db.ref(scorePath).set(scoreObj);
+
+  startGame();
 }
 
 function startGame() {
-  document.getElementById('setup').classList.add('hidden');
-  document.getElementById('game').classList.remove('hidden');
-  document.getElementById('gameCodeLabel').innerText = `Codice partita: ${gameId}`;
-  renderTable();
-}
+  document.getElementById("game").classList.remove("hidden");
+  document.getElementById("gameCodeLabel").innerText = "Codice partita: " + gameId;
 
-function renderTable() {
-  const table = document.getElementById('scoreboard');
-  table.innerHTML = '';
-
-  // Header
-  const trHeader = document.createElement('tr');
-  trHeader.innerHTML = '<th>Categoria</th>';
-  for (let player in gameData.players) {
-    trHeader.innerHTML += `<th>${player}</th>`;
-  }
-  table.appendChild(trHeader);
-
-  // Righe
-  CATEGORIES.forEach(cat => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${cat}</td>`;
-    for (let player in gameData.players) {
-      const td = document.createElement('td');
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.value = gameData.players[player][cat];
-      input.disabled = player !== playerName;
-      input.onchange = () => {
-        gameData.players[player][cat] = parseInt(input.value) || 0;
-        localStorage.setItem('yahtzee-' + gameId, JSON.stringify(gameData));
-        renderTable(); // aggiorna totali
-      };
-      td.appendChild(input);
-      tr.appendChild(td);
-    }
-    table.appendChild(tr);
+  db.ref("games/" + gameId + "/scores").on("value", snapshot => {
+    const scores = snapshot.val() || {};
+    renderTable(scores);
   });
-
-  // Totale
-  const trTotal = document.createElement('tr');
-  trTotal.innerHTML = '<th>Totale</th>';
-  for (let player in gameData.players) {
-    const total = Object.values(gameData.players[player])
-      .reduce((sum, val) => sum + (parseInt(val) || 0), 0);
-    trTotal.innerHTML += `<td><strong>${total}</strong></td>`;
-  }
-  table.appendChild(trTotal);
 }
 
-function saveGame() {
-  const saved = JSON.parse(localStorage.getItem('yahtzee-storico') || '[]');
-  saved.push({
-    partita: gameId,
-    data: new Date().toLocaleString(),
-    players: gameData.players
-  });
-  localStorage.setItem('yahtzee-storico', JSON.stringify(saved));
-  alert('Partita salvata!');
-}
+function renderTable(scores) {
+  const table = document.getElementById("scoreboard");
+  table.innerHTML = "";
 
-// Auto-join via ?game=xyz
-window.onload = () => {
-  const url = new URL(window.location.href);
-  const paramGame = url.searchParams.get("game");
-  if (paramGame) {
-    document.getElementById('gameIdInput').value = paramGame;
-    joinGame();
-  }
-};
+  /
