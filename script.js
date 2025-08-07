@@ -51,6 +51,17 @@ function joinGame() {
   db.ref("games/" + input).once("value", snapshot => {
     if (snapshot.exists()) {
       gameId = input;
+
+      // Mostra QR code per la partita esistente
+      const qrDiv = document.getElementById("qr");
+      qrDiv.classList.remove("hidden");
+      qrDiv.innerHTML = ""; // svuota
+      new QRCode(qrDiv, {
+        text: `${window.location.origin}?game=${gameId}`,
+        width: 180,
+        height: 180
+      });
+
       showNameSection();
     } else {
       alert("Partita non trovata");
